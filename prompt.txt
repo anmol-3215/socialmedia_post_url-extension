@@ -1,0 +1,1698 @@
+
+ROLE
+Act as a Senior Full-Stack Developer, Chrome Extension Architect, Browser Automation Engineer, Data Engineer, UI/UX Engineer, and Code Reviewer with extensive experience building production-grade Google Chrome Manifest V3 extensions, browser automation systems, dynamic DOM extraction systems, and data-export pipelines.
+You are also an expert in:
+* Chrome Extensions Manifest V3
+* Google Antigravity IDE
+* JavaScript/TypeScript
+* HTML5/CSS3
+* Chrome Extension APIs
+* Service Workers
+* Content Scripts
+* Message Passing
+* Chrome Storage APIs
+* IndexedDB
+* Dynamic SPA websites
+* DOM parsing
+* MutationObserver
+* Infinite scrolling
+* Virtualized lists
+* URL normalization
+* Deduplication
+* CSV/XLSX generation
+* Modular software architecture
+* Error handling and retry systems
+* Performance optimization
+* Secure extension development
+* Platform-specific scraper adapters
+Your task is to design and generate a complete, production-oriented Chrome Extension from scratch, not merely provide a conceptual example.
+
+⸻
+
+1. PROJECT OBJECTIVE
+I want to build a Chrome Extension that assists a user in collecting publicly accessible social-media post/video URLs and associated metadata from multiple social-media platforms.
+The initial target platforms are:
+1. YouTube
+2. Instagram
+3. X / Twitter
+4. Facebook
+5. Reddit
+The extension will be used for research and dataset-building related to financial irregularities, scams, fraud, deceptive investment schemes, cyber-enabled financial crime, and related topics in India.
+The extension should allow the user to enter a keyword or hashtag, select a platform, optionally select a geographic/region target, specify an extraction limit, and then collect matching publicly accessible results from the currently supported platform workflow.
+The resulting dataset will eventually be used as an input to an AI/ML pipeline for detecting and classifying financial-fraud-related content.
+IMPORTANT:
+The extension must only operate within technically and legally permissible access boundaries.
+Do NOT design the system to:
+* bypass CAPTCHA
+* bypass authentication
+* bypass paywalls
+* defeat anti-bot/security mechanisms
+* evade platform access controls
+* steal cookies/session tokens
+* extract private posts
+* access private accounts
+* circumvent rate limits
+* spoof user identity
+* use stolen credentials
+* bypass robots/access restrictions where applicable
+The system should focus on publicly accessible content and user-initiated browser workflows.
+Where a platform restricts automated extraction, explain the limitation and provide the safest technically realistic architecture instead of inventing a nonexistent solution.
+
+⸻
+
+2. IMPORTANT ARCHITECTURAL PRINCIPLE
+Do NOT assume that one generic scraper can reliably scrape every social-media platform.
+Instead, design the extension using a Platform Adapter Architecture.
+Conceptually:
+                    EXTENSION DASHBOARD
+                           |
+                           v
+                    Extraction Manager
+                           |
+             +-------------+-------------+
+             |             |             |
+             v             v             v
+       YouTubeAdapter  InstagramAdapter  XAdapter
+             |
+             +-------------+-------------+
+                           |
+                    FacebookAdapter
+                           |
+                    RedditAdapter
+                           |
+                           v
+                    Normalized Results
+                           |
+                 +---------+---------+
+                 |                   |
+                 v                   v
+            Live Data Store      Deduplication
+                 |                   |
+                 +---------+---------+
+                           |
+                           v
+                    Export Manager
+                     /           \
+                    v             v
+                  CSV           XLSX
+Every platform should have its own adapter.
+Each adapter must expose a common interface such as:
+search()
+extract()
+normalize()
+deduplicate()
+getNextPage()
+stop()
+Do not write five completely unrelated systems.
+Create a reusable abstraction while allowing each platform adapter to handle its own DOM structure and navigation logic.
+
+⸻
+
+3. PRIMARY USER WORKFLOW
+The user should be able to:
+Step 1
+Open the extension dashboard.
+Step 2
+Select:
+Platform:
+[ YouTube ▼ ]
+Available:
+YouTube
+Instagram
+X / Twitter
+Facebook
+Reddit
+Step 3
+Enter:
+Keyword / Hashtag:
+[ financial scam ]
+Examples:
+#financialscam
+#financialfraud
+#onlinescam
+#investmentfraud
+#cyberfraud
+#bankfraud
+#upifraud
+#cryptoscam
+investment scam
+financial fraud India
+The system should support:
+* hashtags
+* keywords
+* multiple keywords where technically feasible
+* whitespace trimming
+* duplicate keyword removal
+Step 4
+Select extraction limit:
+[ 25 ▼ ]
+[ 100 ]
+[ 200 ]
+[ Unlimited ]
+Step 5
+Select region:
+[ India ▼ ]
+Options should include:
+India
+Asia
+USA
+Europe
+UK
+Middle East
+Global
+Custom
+IMPORTANT:
+Do not pretend that every social-media platform provides a true geographic filter.
+If a platform does not support geographic filtering through its public search interface, treat the region selection as:
+* a query modifier where supported
+* a platform-specific search parameter where supported
+* a post-processing/filtering hint where possible
+Clearly indicate this in the UI.
+For example:
+Region filtering:
+Supported
+Partially supported
+Not supported
+Do not fabricate geographic accuracy.
+
+⸻
+
+4. REFERENCE UI/UX
+The UI should be inspired by the supplied reference image showing a professional dark-themed automated data extraction dashboard.
+The reference design contains:
+* dark background
+* top header
+* summary cards
+* configuration panel
+* progress tracker
+* extraction controls
+* live data table
+* export buttons
+* status indicators
+* professional enterprise dashboard styling
+Do NOT copy the reference image literally.
+Instead create an original interface with a similar:
+* visual hierarchy
+* dark professional appearance
+* spacing
+* dashboard structure
+* information density
+* status-card concept
+* configuration workflow
+The UI should feel like a serious research/data collection platform, not a toy browser extension.
+
+⸻
+
+5. DASHBOARD STRUCTURE
+Build the dashboard approximately as:
+┌──────────────────────────────────────────────────────────────┐
+│ LOGO / APP NAME                     Connection / Status      │
+├──────────────────────────────────────────────────────────────┤
+│                                                              │
+│  TOTAL RESULTS     PLATFORM     EXTRACTED     SPEED         │
+│      0              YouTube        0          --/min         │
+│                                                              │
+├──────────────────────────────────────────────────────────────┤
+│                                                              │
+│ EXTRACTION CONFIGURATION                                     │
+│                                                              │
+│ Platform        [ YouTube ▼ ]                                │
+│ Keyword         [ #financialscam......................... ] │
+│ Limit           [ 100 ▼ ]                                    │
+│ Region          [ India ▼ ]                                  │
+│                                                              │
+│ [ START EXTRACTION ]       [ STOP ]       [ CLEAR ]          │
+│                                                              │
+├──────────────────────────────────────────────────────────────┤
+│                                                              │
+│ EXTRACTION PROGRESS                                           │
+│                                                              │
+│ Status: Searching                                            │
+│ ███████████████████████░░░░░░░░  68%                        │
+│                                                              │
+│ Discovered: 68                                               │
+│ Valid: 64                                                    │
+│ Duplicates: 4                                                │
+│ Errors: 0                                                    │
+│                                                              │
+├──────────────────────────────────────────────────────────────┤
+│                                                              │
+│ EXTRACTED DATA                                               │
+│                                                              │
+│ Search [........................................]             │
+│                                                              │
+│ # | Caption | URL | Keywords/Hashtags | Platform | Date      │
+│ ------------------------------------------------------------ │
+│ 1 | ....... | ... | #financialscam     | YouTube | ...       │
+│ 2 | ....... | ... | #fraud             | YouTube | ...       │
+│                                                              │
+│                    [ EXPORT CSV ] [ EXPORT XLSX ]            │
+│                                                              │
+└──────────────────────────────────────────────────────────────┘
+
+⸻
+
+6. RESPONSIVE UI
+The extension should not rely exclusively on a tiny popup.
+Because the dashboard contains:
+* configuration controls
+* statistics
+* progress
+* logs
+* potentially hundreds of records
+* export controls
+prefer a dedicated extension page or Chrome Side Panel architecture where appropriate.
+Investigate whether chrome.sidePanel is the better experience than a traditional popup.
+If you choose Side Panel:
+Explain:
+1. Why it is better
+2. Required manifest configuration
+3. How the user opens it
+4. How the dashboard communicates with content scripts
+The system should also remain compatible with a normal extension page if Side Panel is not appropriate.
+
+⸻
+
+7. REQUIRED DATA MODEL
+Every extracted record should be normalized into a common schema.
+At minimum:
+{
+    id: "",
+    platform: "",
+    caption: "",
+    url: "",
+    normalizedUrl: "",
+    keywords: [],
+    hashtags: [],
+    author: "",
+    authorUrl: "",
+    publishedAt: "",
+    collectedAt: "",
+    mediaType: "",
+    extractionSource: "",
+    region: "",
+    status: "",
+    error: ""
+}
+The UI table must at minimum display:
+#
+Caption
+URL
+Keywords/Hashtags
+You may add:
+Platform
+Author
+Date
+Media Type
+Status
+but do not make the table unnecessarily cluttered.
+
+⸻
+
+8. URL NORMALIZATION
+Implement robust URL normalization.
+Examples:
+YouTube:
+https://youtube.com/watch?v=ABC
+https://www.youtube.com/watch?v=ABC&utm_source=x
+should resolve to the same canonical video URL where appropriate.
+Likewise normalize:
+* tracking parameters
+* unnecessary query parameters
+* trailing slashes
+* mobile/desktop variants where safely possible
+* URL encoding inconsistencies
+Do NOT remove query parameters that are necessary to uniquely identify the resource.
+Create a reusable function:
+normalizeUrl(url, platform)
+
+⸻
+
+9. DEDUPLICATION
+Deduplicate records using a stable identity hierarchy.
+For example:
+1. Platform-native post/video ID
+2. Canonical URL
+3. Fallback normalized URL
+Implement:
+deduplicateResults(results)
+The UI should show:
+Discovered: 150
+Valid: 127
+Duplicates: 23
+Errors: 0
+Do not display duplicate rows.
+
+⸻
+
+10. MANIFEST V3
+Use Manifest V3.
+Provide the complete manifest.json.
+Do not use Manifest V2.
+The manifest should be designed around the minimum permissions necessary.
+Potential APIs may include:
+storage
+scripting
+tabs
+activeTab
+downloads
+sidePanel
+Only include permissions that are actually required.
+Do not request:
+<all_urls>
+unless you can demonstrate why it is unavoidable.
+Prefer specific host permissions or dynamically injected content scripts where technically appropriate.
+Explain every permission in a table:
+Permission	Why required
+storage	Persist settings/results
+scripting	Inject extraction logic
+activeTab	User-initiated access
+downloads	Export files
+sidePanel	Dashboard
+tabs	Detect/manage active extraction tab
+Do not include unnecessary permissions.
+
+⸻
+
+11. SERVICE WORKER
+Create an MV3 extension service worker.
+Example architecture:
+background/
+    service-worker.js
+    message-router.js
+    extraction-manager.js
+    storage-manager.js
+    export-manager.js
+The service worker should coordinate:
+* dashboard communication
+* content-script communication
+* extraction jobs
+* state persistence
+* result aggregation
+* deduplication
+* export requests
+* error handling
+IMPORTANT:
+Remember that an MV3 service worker is not a persistent background page.
+Do not depend on:
+setInterval()
+or global variables as the sole source of truth.
+Persist important state using appropriate extension storage or IndexedDB.
+
+⸻
+
+12. CONTENT SCRIPT ARCHITECTURE
+Create platform-specific content scripts.
+Suggested structure:
+content/
+    core/
+        base-adapter.js
+        extractor-utils.js
+        dom-utils.js
+        scroll-manager.js
+        url-utils.js
+
+    youtube/
+        youtube-adapter.js
+
+    instagram/
+        instagram-adapter.js
+
+    x/
+        x-adapter.js
+
+    facebook/
+        facebook-adapter.js
+
+    reddit/
+        reddit-adapter.js
+The content script must:
+1. Inspect the current page.
+2. Identify relevant result elements.
+3. Extract publicly visible data.
+4. Normalize the data.
+5. Send records to the service worker.
+6. Continue extraction if more results are available.
+7. Stop when the requested limit is reached.
+8. Stop cleanly when the user presses STOP.
+
+⸻
+
+13. DYNAMIC WEBSITE HANDLING
+This is a critical requirement.
+Modern social-media platforms are dynamic Single Page Applications.
+Do NOT simply execute:
+document.querySelectorAll(...)
+once and assume the page is static.
+Implement reusable mechanisms for:
+MutationObserver
+Detect newly inserted result elements.
+Infinite scrolling
+Implement controlled scrolling.
+Concept:
+Extract visible results
+        ↓
+Check result count
+        ↓
+Scroll
+        ↓
+Wait
+        ↓
+DOM changes
+        ↓
+Extract new results
+        ↓
+Deduplicate
+        ↓
+Repeat
+Use:
+* adaptive delays
+* mutation observers
+* result-count monitoring
+* maximum scroll attempts
+* stagnation detection
+* clean stop conditions
+Do NOT implement aggressive scrolling.
+
+⸻
+
+14. PERFORMANCE REQUIREMENTS
+The extension must remain responsive.
+Avoid:
+while(true) {
+    window.scrollTo(...)
+}
+Do not freeze the browser.
+Use:
+* async/await
+* controlled delays
+* requestAnimationFrame where useful
+* MutationObserver
+* batched processing
+* throttling
+* debouncing
+* incremental state updates
+* virtualized table rendering if necessary
+Do not send the entire dataset through extension messaging every time a single record is added.
+Instead use incremental/batched updates.
+Example:
+Record 1
+Record 2
+Record 3
+       ↓
+Batch of 10
+       ↓
+Service Worker
+       ↓
+Dashboard
+
+⸻
+
+15. EXTRACTION STATE MACHINE
+Implement an explicit extraction state machine.
+States:
+IDLE
+INITIALIZING
+SEARCHING
+EXTRACTING
+SCROLLING
+PROCESSING
+PAUSED
+STOPPING
+COMPLETED
+ERROR
+Example:
+IDLE
+ ↓
+INITIALIZING
+ ↓
+SEARCHING
+ ↓
+EXTRACTING
+ ↓
+SCROLLING
+ ↓
+EXTRACTING
+ ↓
+PROCESSING
+ ↓
+COMPLETED
+The STOP button must transition the process safely to:
+STOPPING → IDLE
+No orphaned loops should continue after STOP.
+
+⸻
+
+16. PROGRESS SYSTEM
+Display real-time statistics:
+Results Found
+Results Valid
+Duplicates
+Errors
+Current Platform
+Current Keyword
+Current Status
+Elapsed Time
+Extraction Speed
+Example:
+Total Found: 127
+Unique: 113
+Duplicates: 14
+Errors: 0
+Speed: 8.4/min
+Elapsed: 00:01:42
+Progress bar:
+██████████████████░░░░░ 78%
+For Unlimited mode, use an indeterminate progress state rather than pretending there is a known percentage.
+
+⸻
+
+17. ERROR HANDLING
+Implement robust error handling.
+Possible errors:
+Unsupported platform
+Unsupported page
+Search page not loaded
+DOM structure changed
+No results
+Network issue
+Permission denied
+Extraction timeout
+Content script unavailable
+Tab closed
+User navigated away
+Rate limitation
+Platform restriction
+Unexpected DOM structure
+Show human-readable messages.
+Example:
+Extraction stopped
+
+Reason:
+The current page structure could not be recognized.
+
+Suggested action:
+Refresh the platform search page and try again.
+Do not expose raw stack traces to ordinary users.
+Keep detailed errors in a developer/debug log.
+
+⸻
+
+18. PLATFORM ADAPTER REQUIREMENTS
+Create an adapter for each platform.
+YouTube
+Support public search-result pages and publicly visible video/Short results where technically accessible.
+Extract:
+Title/caption
+Video URL
+Channel
+Publication information where available
+Visible hashtags where available
+Be careful to distinguish:
+video
+short
+channel
+playlist
+Only collect the requested content type.
+
+⸻
+
+Instagram
+Design an Instagram adapter that operates only on publicly accessible content available through the user’s browser context and permitted workflows.
+Potential targets:
+hashtag pages
+search results
+public posts
+public Reels
+Extract:
+caption
+post URL
+hashtags
+author where publicly visible
+Do not attempt to access:
+private accounts
+private posts
+hidden API endpoints requiring unauthorized access
+session tokens
+cookies
+If Instagram prevents reliable extraction, the extension must report:
+"Instagram extraction is currently limited by platform access restrictions."
+Do not pretend otherwise.
+
+⸻
+
+X / Twitter
+Support publicly accessible search/result pages where possible.
+Extract:
+post text
+post URL
+hashtags
+author
+timestamp where visible
+Handle:
+x.com
+twitter.com
+Normalize URLs.
+
+⸻
+
+Facebook
+Support publicly accessible pages/search/result workflows where technically possible.
+Clearly separate:
+public post
+public video
+page
+profile
+Do not attempt private content.
+If extraction is technically restricted, clearly expose the limitation.
+
+⸻
+
+Reddit
+Support publicly accessible Reddit search pages.
+Extract:
+post title
+post URL
+subreddit
+author where visible
+timestamp
+text preview where visible
+Handle Reddit’s dynamic loading and pagination appropriately.
+
+⸻
+
+19. SEARCH NAVIGATION
+Do not assume the user must manually navigate to every platform search page.
+Where technically and permissibly possible, create platform-specific search URL builders.
+For example:
+buildSearchUrl(platform, keyword, region)
+Concept:
+User enters:
+#financialscam
+
+Platform:
+YouTube
+
+↓
+
+Extension builds appropriate search URL
+
+↓
+
+Open/navigate active tab
+
+↓
+
+Content adapter initializes
+
+↓
+
+Extraction begins
+However, do not invent unsupported search URL syntax.
+For each platform:
+1. Determine the current publicly documented/search-supported URL pattern.
+2. If no reliable URL pattern exists, explain the limitation.
+3. Keep URL builders platform-specific.
+
+⸻
+
+20. REGION HANDLING
+Implement:
+buildSearchQuery(keyword, region, platform)
+But do not pretend region filtering is universal.
+Examples:
+India
+Asia
+USA
+UK
+Europe
+Global
+Custom
+For India, possible query modifiers may include terms such as:
+India
+Indian
+INR
+UPI
+RBI
+SEBI
+but these should be treated as search terms, not proof that content originated in India.
+The system should distinguish:
+Search region
+from:
+Verified geographic origin
+Never label a post as “Indian” merely because the query contained “India”.
+
+⸻
+
+21. LIVE DATA TABLE
+Build a high-quality data table.
+Columns:
+#
+Caption
+URL
+Keywords/Hashtags
+Platform
+Author
+Date
+Status
+Features:
+* sticky header
+* row hover
+* URL clickable
+* copy URL button
+* search/filter
+* sort where appropriate
+* responsive layout
+* pagination or virtualization for large datasets
+* empty state
+* loading state
+* error state
+Example:
+#   Caption              URL              Hashtags
+------------------------------------------------------
+1   Investment scam...   youtube.com/...  #scam #fraud
+2   Beware of...         instagram.com/... #fraud
+3   RBI warning...       x.com/...         #bankfraud
+
+⸻
+
+22. EXPORT SYSTEM
+Implement two prominent buttons:
+EXPORT CSV
+EXPORT XLSX
+CSV must:
+* correctly escape commas
+* correctly escape quotes
+* correctly handle newlines
+* use UTF-8
+* preserve Hindi/Indian-language text
+* preserve Unicode hashtags
+XLSX must contain:
+#
+Platform
+Caption
+URL
+Keywords/Hashtags
+Author
+Date
+Collected At
+Use a browser-compatible XLSX library bundled locally with the extension if appropriate and compatible with the project’s licensing requirements.
+Do NOT load executable libraries from arbitrary remote CDNs.
+The extension should remain compliant with MV3 extension security requirements.
+
+⸻
+
+23. LOCAL STORAGE / DATABASE
+Design storage appropriately.
+Small settings:
+chrome.storage.local
+Larger datasets:
+IndexedDB
+Do not assume localStorage is suitable for the MV3 service worker.
+Create:
+storage-manager.js
+with methods:
+saveSettings()
+loadSettings()
+
+saveResult()
+saveResults()
+
+getResults()
+clearResults()
+
+getExtractionState()
+saveExtractionState()
+The architecture must allow the dataset to survive service-worker suspension/restart.
+
+⸻
+
+24. COMMUNICATION ARCHITECTURE
+Implement clear message types.
+For example:
+START_EXTRACTION
+STOP_EXTRACTION
+PAUSE_EXTRACTION
+RESUME_EXTRACTION
+
+EXTRACTION_STARTED
+RESULT_FOUND
+RESULT_BATCH
+EXTRACTION_PROGRESS
+EXTRACTION_COMPLETED
+EXTRACTION_ERROR
+
+GET_SETTINGS
+SAVE_SETTINGS
+
+EXPORT_CSV
+EXPORT_XLSX
+Use a consistent message schema:
+{
+    type: "RESULT_BATCH",
+    payload: {
+        results: [...]
+    }
+}
+Document every message type.
+
+⸻
+
+25. SECURITY
+Apply secure extension practices.
+Do not:
+* use eval()
+* execute arbitrary remote JavaScript
+* inject untrusted HTML
+* use unsafe innerHTML with scraped content
+* store credentials
+* expose API keys in client code
+* store session cookies
+* send scraped data to external servers without explicit configuration/consent
+Use:
+textContent
+instead of unsafe HTML insertion where possible.
+Sanitize exported content appropriately.
+
+⸻
+
+26. API/BACKEND EXTENSIBILITY
+Design the architecture so that a future backend can be added.
+Potential future architecture:
+Chrome Extension
+       ↓
+Optional Backend API
+       ↓
+PostgreSQL
+       ↓
+Dataset Processing
+       ↓
+AI/ML Pipeline
+But Version 1 must work locally without requiring a backend, unless a backend is technically required for a particular supported workflow.
+Do not force unnecessary cloud infrastructure into V1.
+
+⸻
+
+27. LOGGING SYSTEM
+Implement a developer-friendly logging system.
+Example:
+[INFO] Extraction started
+[INFO] Platform: YouTube
+[INFO] Query: #financialscam
+[INFO] Limit: 100
+
+[INFO] Search page loaded
+[INFO] Found 12 initial results
+[INFO] Scrolling...
+[INFO] Found 9 new results
+[INFO] 3 duplicates removed
+
+[INFO] Extraction completed
+Provide a UI option:
+VIEW LOGS
+Use log levels:
+DEBUG
+INFO
+WARN
+ERROR
+Allow debug mode to be enabled from Settings.
+
+⸻
+
+28. STOP / PAUSE / RESUME
+The extension should support:
+START
+PAUSE
+RESUME
+STOP
+If implementing PAUSE increases complexity substantially, explain the tradeoff and implement STOP first, but architect the system so PAUSE/RESUME can be added later.
+STOP must work reliably.
+
+⸻
+
+29. EXTRACTION LIMITS
+Implement:
+25
+100
+200
+Unlimited
+The extraction engine must stop immediately after reaching the requested number of unique valid records, not merely the number of DOM elements inspected.
+For example:
+Limit = 100
+
+Found = 140
+Duplicates = 25
+Invalid = 5
+
+Unique valid = 110
+The system should stop once it reaches 100 unique valid records.
+
+⸻
+
+30. URL VALIDATION
+Before saving a record:
+isValidSocialUrl(url, platform)
+must verify that the URL actually belongs to the selected platform.
+Examples:
+YouTube → youtube.com / youtu.be
+Instagram → instagram.com
+X → x.com / twitter.com
+Reddit → reddit.com
+Facebook → facebook.com
+Reject unrelated links.
+
+⸻
+
+31. TESTING
+Provide a comprehensive testing plan.
+Include:
+Unit tests
+Test:
+URL normalization
+URL validation
+hashtag extraction
+keyword extraction
+deduplication
+CSV generation
+record normalization
+Integration tests
+Test:
+Dashboard → Service Worker
+Service Worker → Content Script
+Content Script → Service Worker
+Storage → Dashboard
+Export → File
+Manual platform tests
+For each platform:
+Search page loads
+Initial results detected
+Dynamic results detected
+Scrolling works
+Duplicate detection works
+Limit respected
+STOP works
+Export works
+
+⸻
+
+32. PROJECT STRUCTURE
+Provide an exact production-ready project structure.
+Prefer something similar to:
+social-media-research-extension/
+│
+├── manifest.json
+├── README.md
+├── package.json
+├── vite.config.js              # only if bundler is used
+│
+├── src/
+│   ├── background/
+│   │   ├── service-worker.js
+│   │   ├── message-router.js
+│   │   ├── extraction-manager.js
+│   │   └── state-manager.js
+│   │
+│   ├── dashboard/
+│   │   ├── dashboard.html
+│   │   ├── dashboard.css
+│   │   └── dashboard.js
+│   │
+│   ├── content/
+│   │   ├── core/
+│   │   │   ├── base-adapter.js
+│   │   │   ├── dom-utils.js
+│   │   │   ├── scroll-manager.js
+│   │   │   ├── url-utils.js
+│   │   │   └── extractor-utils.js
+│   │   │
+│   │   ├── youtube/
+│   │   │   └── youtube-adapter.js
+│   │   │
+│   │   ├── instagram/
+│   │   │   └── instagram-adapter.js
+│   │   │
+│   │   ├── x/
+│   │   │   └── x-adapter.js
+│   │   │
+│   │   ├── facebook/
+│   │   │   └── facebook-adapter.js
+│   │   │
+│   │   └── reddit/
+│   │       └── reddit-adapter.js
+│   │
+│   ├── storage/
+│   │   ├── storage-manager.js
+│   │   └── indexed-db.js
+│   │
+│   ├── export/
+│   │   ├── csv-exporter.js
+│   │   └── xlsx-exporter.js
+│   │
+│   ├── shared/
+│   │   ├── constants.js
+│   │   ├── messages.js
+│   │   ├── logger.js
+│   │   └── schemas.js
+│   │
+│   └── assets/
+│       ├── icons/
+│       └── images/
+│
+└── tests/
+    ├── unit/
+    └── integration/
+You may modify this structure if you have a better architecture.
+If you do, explain why.
+
+⸻
+
+33. GOOGLE ANTIGRAVITY IDE SETUP
+Assume I am starting from an empty folder.
+Give me exact instructions for Google Antigravity IDE.
+Explain:
+1. How to create the project.
+2. How to open it in Antigravity.
+3. How to initialize Node.js if required.
+4. How to install dependencies.
+5. How to create the directory structure.
+6. How to configure Manifest V3.
+7. How to build the extension.
+8. How to load it into Chrome.
+9. How to reload after code changes.
+10. How to inspect service-worker logs.
+11. How to inspect content-script logs.
+12. How to debug the dashboard.
+13. How to package the final extension.
+Do not assume that I already understand Chrome extension development.
+
+⸻
+
+34. CHROME LOCAL DEVELOPMENT
+Give exact instructions for:
+chrome://extensions/
+including:
+Developer mode
+Load unpacked
+Select project/build directory
+Reload extension
+Inspect views
+Inspect service worker
+Explain how to troubleshoot:
+Manifest errors
+Permission errors
+Content script not injected
+Service worker not starting
+Message passing errors
+CSP errors
+CORS issues
+
+⸻
+
+35. BUILD SYSTEM
+You may choose between:
+Option A
+Vanilla:
+HTML
+CSS
+JavaScript
+Option B
+TypeScript + Vite
+Choose the architecture you believe is best for this project.
+For V1, prioritize:
+simplicity
+debuggability
+maintainability
+Do not introduce React, Redux, Tailwind, TypeScript, Vite, or other frameworks merely for the sake of using them.
+If you believe vanilla JS is sufficient, use vanilla JS.
+If TypeScript/Vite significantly improves maintainability, use it and explain why.
+
+⸻
+
+36. UI DESIGN SYSTEM
+Create a consistent design system.
+Use:
+Background
+Surface
+Surface elevated
+Border
+Primary
+Success
+Warning
+Danger
+Text
+Muted text
+Use CSS variables:
+:root {
+    --bg: ...;
+    --surface: ...;
+    --border: ...;
+    --primary: ...;
+    --success: ...;
+    --warning: ...;
+    --danger: ...;
+    --text: ...;
+    --muted: ...;
+}
+Use:
+* rounded cards
+* subtle borders
+* restrained shadows
+* clear typography
+* accessible contrast
+* compact dashboard layout
+* responsive tables
+* professional status badges
+Avoid excessive animations.
+
+⸻
+
+37. ACCESSIBILITY
+Include:
+* keyboard navigation
+* visible focus states
+* semantic buttons
+* labels for form controls
+* accessible contrast
+* screen-reader-friendly status messages
+* tooltips where icons are ambiguous
+Do not rely exclusively on color to communicate status.
+
+⸻
+
+38. INTERNATIONALIZATION
+Because the dataset may contain Indian content, the application must properly handle:
+Hindi
+English
+Hinglish
+regional Indian languages
+Unicode hashtags
+emoji
+Ensure:
+UTF-8
+throughout.
+Exports must preserve Unicode correctly.
+
+⸻
+
+39. SAMPLE DATA / DEMO MODE
+Implement a demo/mock mode so that the UI can be tested without scraping a real social platform.
+Example:
+[ Demo Mode ]
+When enabled:
+Generate 25 mock records
+↓
+Display them in the table
+↓
+Test filtering
+↓
+Test deduplication
+↓
+Test CSV
+↓
+Test XLSX
+This is important because platform extraction may fail during development.
+
+⸻
+
+40. REFERENCE CONTENT
+Use the following publicly accessible YouTube Shorts only as examples of the type of content that may be relevant:
+https://youtube.com/shorts/4kPBowlxmqE?si=tfsSkalmNohnx562
+
+https://youtube.com/shorts/uOzPx47B8as?si=ETPnsVG9hFMQUD2F
+
+https://youtube.com/shorts/AyoL3HKkuUY?si=5dBX0mRaKSyP3D5w
+Do not assume these URLs represent a specific fraud category unless the actual content confirms it.
+They are only examples of public video content.
+
+⸻
+
+41. DATA ETHICS / PRIVACY
+This project is intended for research and AI dataset development.
+Build the architecture with privacy and responsible data collection in mind.
+Do not collect unnecessary personal information.
+Prefer:
+post URL
+public content
+public metadata
+Avoid unnecessarily storing:
+email addresses
+phone numbers
+private messages
+private profile data
+authentication information
+cookies
+session tokens
+If personally identifiable information is publicly present in captions, comments, or posts, the system should not automatically enrich it with additional personal information.
+
+⸻
+
+42. DO NOT OVERPROMISE
+This is extremely important.
+Do NOT write code that claims:
+"works on Instagram"
+"works on Facebook"
+"works on X"
+unless the implementation has a technically valid method.
+Instead, clearly classify each adapter:
+SUPPORTED
+PARTIALLY_SUPPORTED
+LIMITED_BY_PLATFORM
+REQUIRES_USER_NAVIGATION
+NOT_SUPPORTED
+Build the system so that platform support can be independently enabled/disabled.
+Example:
+platformCapabilities = {
+    youtube: {
+        enabled: true
+    },
+    instagram: {
+        enabled: true,
+        mode: "public-browser-context"
+    },
+    x: {
+        enabled: true
+    },
+    facebook: {
+        enabled: false,
+        reason: "platform limitations"
+    },
+    reddit: {
+        enabled: true
+    }
+};
+
+⸻
+
+43. DO NOT HARDCODE FRAGILE SELECTORS WITHOUT EXPLANATION
+Modern social platforms frequently change their DOM.
+Do not scatter selectors throughout the code like:
+document.querySelector(".abc123")
+Instead centralize selectors:
+const selectors = {
+    result: [...],
+    caption: [...],
+    url: [...],
+};
+Use multiple fallback selectors where appropriate.
+Create:
+selector-health-check
+or at minimum a diagnostic mechanism that reports:
+Expected result elements: 10
+Detected: 0
+
+Possible cause:
+Platform DOM structure changed.
+
+⸻
+
+44. ADAPTIVE EXTRACTION
+Design the scraper to be resilient.
+For example:
+Attempt primary selector
+       ↓
+Found?
+ ┌─────┴─────┐
+YES          NO
+ ↓            ↓
+Extract     Try fallback
+              ↓
+          Still none?
+              ↓
+          Diagnostic
+Do not silently return an empty dataset.
+
+⸻
+
+45. RATE / PERFORMANCE CONTROL
+Implement reasonable pacing.
+Do not perform:
+thousands of DOM queries per second
+Instead:
+batch
+wait
+observe
+extract
+batch
+wait
+Make extraction settings configurable internally:
+scrollDelay
+mutationDebounce
+batchSize
+maxScrollAttempts
+stagnationThreshold
+Use safe defaults.
+Do not provide mechanisms intended to evade platform anti-abuse systems.
+
+⸻
+
+46. RESULT QUALITY FILTER
+Before adding a result:
+Does URL belong to selected platform?
+Is URL valid?
+Is it actually a post/video?
+Does it contain useful content?
+Is it duplicate?
+Then:
+ACCEPT
+REJECT
+Store rejection reasons in debug mode.
+
+⸻
+
+47. FUTURE AI DATASET SUPPORT
+Design the normalized schema so it can later support:
+fraud_category
+fraud_probability
+language
+sentiment
+risk_score
+human_label
+review_status
+label_source
+Do NOT implement ML classification in V1 unless needed.
+However, leave extension points for a future classifier.
+Future architecture:
+Collected Post
+      ↓
+Content Cleaning
+      ↓
+Language Detection
+      ↓
+Fraud Classifier
+      ↓
+Risk Score
+      ↓
+Human Review
+      ↓
+Training Dataset
+
+⸻
+
+48. FUTURE DATABASE SUPPORT
+Design export/import so the dataset can later be migrated to:
+PostgreSQL
+MongoDB
+BigQuery
+Supabase
+Firebase
+S3
+Do not hardcode the extension around Excel as the permanent database.
+Excel is only an export format.
+
+⸻
+
+49. REQUIRED OUTPUT FROM YOU
+Do not merely describe the architecture.
+Actually generate the implementation.
+Your response must be divided into the following phases.
+PHASE 1 — ARCHITECTURE
+Explain:
+* overall architecture
+* component diagram
+* data flow
+* extension contexts
+* responsibilities of each component
+* platform adapter architecture
+* storage architecture
+* export architecture
+
+⸻
+
+PHASE 2 — PROJECT SETUP
+Provide:
+* prerequisites
+* Google Antigravity setup
+* Node.js setup if required
+* dependency installation
+* project initialization
+* exact commands
+
+⸻
+
+PHASE 3 — PROJECT STRUCTURE
+Show the complete directory tree.
+Then explain the purpose of every important file.
+
+⸻
+
+PHASE 4 — MANIFEST
+Provide the complete:
+manifest.json
+Explain every permission and manifest field.
+
+⸻
+
+PHASE 5 — UI
+Generate complete:
+dashboard.html
+dashboard.css
+dashboard.js
+Do not provide pseudocode.
+
+⸻
+
+PHASE 6 — CORE ENGINE
+Generate complete code for:
+extraction-manager
+message-router
+storage-manager
+result-normalizer
+deduplication
+url-normalization
+logger
+state-machine
+
+⸻
+
+PHASE 7 — PLATFORM ADAPTERS
+Generate complete implementations for:
+YouTube
+Instagram
+X
+Facebook
+Reddit
+Where a platform cannot reliably support the requested functionality, implement a graceful limitation rather than fake functionality.
+Clearly mark unsupported/limited functionality.
+
+⸻
+
+PHASE 8 — DYNAMIC EXTRACTION
+Implement:
+MutationObserver
+infinite scroll
+batch extraction
+stagnation detection
+stop mechanism
+duplicate detection
+
+⸻
+
+PHASE 9 — EXPORT
+Generate:
+CSV exporter
+XLSX exporter
+and demonstrate how they connect to the dashboard.
+
+⸻
+
+PHASE 10 — TESTING
+Provide:
+* unit tests
+* integration tests
+* manual test procedures
+* platform test checklist
+* failure scenarios
+
+⸻
+
+PHASE 11 — DEBUGGING
+Give a troubleshooting guide for:
+Manifest errors
+Permission errors
+No content script
+Service worker failure
+DOM selector failure
+No results
+Export failure
+Storage failure
+Message passing failure
+
+⸻
+
+PHASE 12 — BUILD & DEPLOY
+Explain:
+development
+↓
+local testing
+↓
+production build
+↓
+Load unpacked
+↓
+Chrome Web Store preparation
+Also explain what additional requirements would apply before publishing publicly.
+
+⸻
+
+50. CODE QUALITY REQUIREMENTS
+Every code file you provide must be:
+* complete
+* syntactically valid
+* internally consistent
+* modular
+* commented where useful
+* production-oriented
+* free from placeholder pseudocode unless explicitly identified
+* compatible with the selected build architecture
+Do NOT give code snippets that depend on nonexistent files.
+Do NOT invent functions that are never defined.
+Do NOT reference libraries that are not installed.
+Do NOT omit imports.
+Do NOT omit HTML elements required by JavaScript.
+Do NOT create manifest permissions that the code doesn’t use.
+Maintain consistency across all phases.
+
+⸻
+
+51. IMPORTANT RESPONSE RULE
+Because this is a large project, do NOT attempt to dump 10,000 lines of code in one unreadable response.
+Instead, work in controlled implementation phases.
+Start with:
+PHASE 1
+Architecture
+
+PHASE 2
+Project Setup
+
+PHASE 3
+Project Structure
+
+PHASE 4
+Manifest
+
+PHASE 5
+Dashboard
+Then stop and clearly state:
+PHASE 1–5 COMPLETE
+Wait for my instruction:
+CONTINUE
+before generating the next major group of files.
+However, when generating a phase, provide the complete code for every file belonging to that phase.
+
+⸻
+
+52. SELF-REVIEW BEFORE PROVIDING CODE
+Before presenting each implementation phase, internally verify:
+Architecture
+* Is MV3 used?
+* Is the service worker architecture correct?
+* Are content scripts used for DOM access?
+* Is message passing correct?
+* Is state persisted?
+Security
+* Are there unnecessary permissions?
+* Is arbitrary remote code avoided?
+* Is scraped content safely inserted?
+* Are credentials/cookies avoided?
+Performance
+* Is infinite scrolling controlled?
+* Is DOM processing batched?
+* Are messages batched?
+* Is duplicate processing avoided?
+Reliability
+* Are selectors centralized?
+* Are fallback selectors provided?
+* Are platform limitations handled?
+* Does STOP work?
+Data
+* Is the schema consistent?
+* Are URLs normalized?
+* Are duplicates removed?
+* Is Unicode preserved?
+Export
+* Does CSV handle Unicode?
+* Does XLSX contain the required columns?
+* Are filenames generated safely?
+
+⸻
+
+53. FINAL OBJECTIVE
+The finished application should behave approximately like this:
+USER OPENS EXTENSION
+        ↓
+DASHBOARD
+        ↓
+Select Platform
+        ↓
+Enter Keyword / Hashtag
+        ↓
+Select Limit
+        ↓
+Select Region
+        ↓
+START EXTRACTION
+        ↓
+Extension opens/uses appropriate public search workflow
+        ↓
+Platform Adapter initializes
+        ↓
+Extract visible results
+        ↓
+Normalize URLs
+        ↓
+Extract caption/title
+        ↓
+Extract hashtags/keywords
+        ↓
+Validate
+        ↓
+Deduplicate
+        ↓
+Save locally
+        ↓
+Update dashboard
+        ↓
+Continue dynamic loading if necessary
+        ↓
+Reach requested unique-result limit
+        ↓
+STOP
+        ↓
+User reviews dataset
+        ↓
+EXPORT CSV / XLSX
+The final product should feel like a professional social-media research data collection tool, inspired by the supplied automated lead-extraction dashboard, but specifically designed for structured public social-media research.
+The architecture must be maintainable enough that additional platforms can later be added simply by creating another adapter:
+TikTokAdapter
+LinkedInAdapter
+TelegramAdapter
+ThreadsAdapter
+without rewriting the entire application.
+
+⸻
+
+54. MOST IMPORTANT PRINCIPLE
+Prioritize:
+CORRECTNESS
+>
+LEGAL/PLATFORM COMPLIANCE
+>
+RELIABILITY
+>
+DATA QUALITY
+>
+SECURITY
+>
+PERFORMANCE
+>
+UI POLISH
+Do not sacrifice correctness for the appearance of “working.”
+If a platform cannot technically or permissibly be automated from a Chrome extension, explicitly tell me:
+1. Why.
+2. What part can be implemented.
+3. What part cannot.
+4. What compliant alternative exists.
+5. How the architecture should accommodate that limitation.
+Do not fabricate APIs, selectors, endpoints, permissions, or platform capabilities.
+Before implementing any platform-specific behavior that may have changed, verify the current official documentation or current public behavior where appropriate.
+The final implementation should be realistic, maintainable, modular, secure, and production-oriented, not a toy scraper.

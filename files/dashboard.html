@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Social Media Intelligence & Research Suite</title>
+<link rel="stylesheet" href="dashboard.css" />
+</head>
+<body class="theme-dark">
+
+  <!-- Main App Header -->
+  <header class="app-header">
+    <div class="brand">
+      <span class="brand-mark">◈</span>
+      <div class="brand-titles">
+        <span class="brand-name">Social Research Intelligence</span>
+        <span class="brand-subtitle">Multi-Platform Cyber-Fraud & AI Dataset Extractor</span>
+      </div>
+    </div>
+    <div class="header-controls">
+      <div class="header-status">
+        <span id="connectionDot" class="status-dot status-dot--idle" aria-hidden="true"></span>
+        <span id="connectionText">Ready</span>
+      </div>
+      <button id="fullscreenBtn" class="btn btn--header" type="button" title="Open in Full Tab / Fullscreen">
+        <span class="icon">⛶</span> Fullscreen View
+      </button>
+    </div>
+  </header>
+
+  <main class="dashboard">
+
+    <!-- Top KPI / Summary Cards -->
+    <section class="summary-cards" aria-label="Extraction summary">
+      <div class="card card--kpi">
+        <div class="card-label">Total Extracted</div>
+        <div class="card-value" id="statTotal">0</div>
+        <div class="card-sub" id="statValidSub">0 unique records</div>
+      </div>
+      <div class="card card--kpi">
+        <div class="card-label">Active Platforms</div>
+        <div class="card-value card-value--accent" id="statPlatform">All Platforms</div>
+        <div class="card-sub" id="statPlatformSub">Concurrent Mode</div>
+      </div>
+      <div class="card card--kpi">
+        <div class="card-label">AI Fraud Flagged</div>
+        <div class="card-value card-value--danger" id="statAiFlagged">0</div>
+        <div class="card-sub" id="statAiSub">NVIDIA NIM Analysis</div>
+      </div>
+      <div class="card card--kpi">
+        <div class="card-label">Speed & Elapsed</div>
+        <div class="card-value" id="statSpeed">--/min</div>
+        <div class="card-sub" id="elapsedTime">00:00:00</div>
+      </div>
+    </section>
+
+    <!-- Multi-Platform Extraction Configuration -->
+    <section class="panel" aria-labelledby="configHeading">
+      <div class="panel-heading-row">
+        <h2 id="configHeading" class="panel-heading">Unified Extraction Configuration</h2>
+        <span class="badge badge--neutral">Multi-Worker Parallel Engine</span>
+      </div>
+
+      <!-- Platform Checkboxes Selection Grid -->
+      <div class="field platform-select-section">
+        <label class="section-label">Select Platforms to Extract Simultaneously:</label>
+        <div class="platform-checkbox-group" id="platformCheckboxGroup">
+          <label class="platform-pill">
+            <input type="checkbox" name="platform" value="youtube" checked />
+            <span class="pill-badge pill-badge--yt">YouTube</span>
+          </label>
+          <label class="platform-pill">
+            <input type="checkbox" name="platform" value="x" checked />
+            <span class="pill-badge pill-badge--x">X / Twitter</span>
+          </label>
+          <label class="platform-pill">
+            <input type="checkbox" name="platform" value="reddit" checked />
+            <span class="pill-badge pill-badge--reddit">Reddit</span>
+          </label>
+          <label class="platform-pill">
+            <input type="checkbox" name="platform" value="instagram" checked />
+            <span class="pill-badge pill-badge--ig">Instagram</span>
+          </label>
+          <label class="platform-pill platform-pill--disabled" title="Facebook extraction is currently limited by platform controls">
+            <input type="checkbox" name="platform" value="facebook" disabled />
+            <span class="pill-badge pill-badge--fb">Facebook (Limited)</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="config-grid">
+        <div class="field field--span-2">
+          <label for="keywordInput">Keywords & Hashtags (Unified Search Query)</label>
+          <input id="keywordInput" type="text" value="#financialscam" placeholder="#financialscam, investment fraud, task scam, fake trading app" autocomplete="off" />
+          <p class="field-hint">Comma-separated. Broadcasted across all selected platform search workflows.</p>
+        </div>
+
+        <div class="field">
+          <label for="limitSelect">Extraction Limit per Platform</label>
+          <select id="limitSelect">
+            <option value="25">25 records</option>
+            <option value="100" selected>100 records</option>
+            <option value="200">200 records</option>
+            <option value="500">500 records</option>
+            <option value="unlimited">Unlimited</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="regionSelect">Target Region Modifier</label>
+          <select id="regionSelect">
+            <option value="india" selected>India (UPI, SEBI, RBI)</option>
+            <option value="asia">Asia</option>
+            <option value="usa">USA / Global</option>
+            <option value="uk">United Kingdom</option>
+            <option value="europe">Europe</option>
+            <option value="global">Global (No modifier)</option>
+          </select>
+          <p class="field-hint" id="regionSupportHint">Applied as query modifier where supported.</p>
+        </div>
+      </div>
+
+      <!-- Advanced Features & Toggles -->
+      <div class="config-options-bar">
+        <div class="toggle-group">
+          <label class="feature-toggle" title="Analyze post content using NVIDIA NIM LLM for scam detection, risk score, and entity extraction">
+            <input type="checkbox" id="aiAnalysisToggle" checked />
+            <span class="toggle-label">⚡ <strong>NVIDIA AI Scam Classification & Risk Scoring</strong></span>
+          </label>
+          <label class="feature-toggle">
+            <input type="checkbox" id="demoModeToggle" />
+            <span class="toggle-label">Demo Mode (Simulation)</span>
+          </label>
+        </div>
+
+        <!-- Global Action Controls -->
+        <div class="action-buttons">
+          <button id="startBtn" class="btn btn--primary" type="button">
+            <span class="btn-icon">▶</span> Start Unified Extraction
+          </button>
+          <button id="pauseBtn" class="btn btn--secondary" type="button" disabled>
+            <span class="btn-icon">⏸</span> Pause
+          </button>
+          <button id="stopBtn" class="btn btn--danger" type="button" disabled>
+            <span class="btn-icon">⏹</span> Stop All
+          </button>
+          <button id="clearBtn" class="btn btn--ghost" type="button">
+            Clear Data
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Multi-Platform Live Status & Queue Tracker -->
+    <section class="panel" aria-labelledby="queueHeading">
+      <div class="panel-heading-row">
+        <h2 id="queueHeading" class="panel-heading">Platform Workers & Queue Status</h2>
+        <div class="progress-status-row">
+          <span class="badge" id="statusBadge">IDLE</span>
+        </div>
+      </div>
+
+      <!-- Live Platform Status Cards Grid -->
+      <div class="worker-grid" id="workerStatusGrid">
+        <div class="worker-card" id="worker-youtube">
+          <div class="worker-card-header">
+            <span class="worker-name">YouTube</span>
+            <span class="worker-status badge badge--neutral" id="status-youtube">Ready</span>
+          </div>
+          <div class="worker-progress-track">
+            <div class="worker-progress-fill" id="progress-youtube" style="width: 0%;"></div>
+          </div>
+          <div class="worker-meta">
+            <span>Collected: <strong id="count-youtube">0</strong></span>
+          </div>
+        </div>
+
+        <div class="worker-card" id="worker-x">
+          <div class="worker-card-header">
+            <span class="worker-name">X / Twitter</span>
+            <span class="worker-status badge badge--neutral" id="status-x">Ready</span>
+          </div>
+          <div class="worker-progress-track">
+            <div class="worker-progress-fill" id="progress-x" style="width: 0%;"></div>
+          </div>
+          <div class="worker-meta">
+            <span>Collected: <strong id="count-x">0</strong></span>
+          </div>
+        </div>
+
+        <div class="worker-card" id="worker-reddit">
+          <div class="worker-card-header">
+            <span class="worker-name">Reddit</span>
+            <span class="worker-status badge badge--neutral" id="status-reddit">Ready</span>
+          </div>
+          <div class="worker-progress-track">
+            <div class="worker-progress-fill" id="progress-reddit" style="width: 0%;"></div>
+          </div>
+          <div class="worker-meta">
+            <span>Collected: <strong id="count-reddit">0</strong></span>
+          </div>
+        </div>
+
+        <div class="worker-card" id="worker-instagram">
+          <div class="worker-card-header">
+            <span class="worker-name">Instagram</span>
+            <span class="worker-status badge badge--neutral" id="status-instagram">Ready</span>
+          </div>
+          <div class="worker-progress-track">
+            <div class="worker-progress-fill" id="progress-instagram" style="width: 0%;"></div>
+          </div>
+          <div class="worker-meta">
+            <span>Collected: <strong id="count-instagram">0</strong></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="progress-bar-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progressBarTrack">
+        <div class="progress-bar-fill" id="progressBarFill"></div>
+      </div>
+
+      <div class="progress-numbers">
+        <div><span class="muted">Discovered</span><strong id="statDiscovered">0</strong></div>
+        <div><span class="muted">Valid</span><strong id="statValid">0</strong></div>
+        <div><span class="muted">Duplicates Filtered</span><strong id="statDuplicates">0</strong></div>
+        <div><span class="muted">Errors</span><strong id="statErrors">0</strong></div>
+      </div>
+
+      <button id="viewLogsBtn" class="btn btn--link" type="button">View Live Extraction Logs</button>
+    </section>
+
+    <!-- Unified Extracted Dataset Table -->
+    <section class="panel panel--table" aria-labelledby="dataHeading">
+      <div class="panel-heading-row table-toolbar">
+        <div>
+          <h2 id="dataHeading" class="panel-heading">Unified Dataset (<span id="tableRecordCount">0</span> records)</h2>
+        </div>
+        <div class="table-filters">
+          <select id="platformFilter" aria-label="Filter by platform">
+            <option value="all">All Platforms</option>
+            <option value="youtube">YouTube</option>
+            <option value="x">X / Twitter</option>
+            <option value="reddit">Reddit</option>
+            <option value="instagram">Instagram</option>
+          </select>
+          <select id="threatFilter" aria-label="Filter by threat">
+            <option value="all">All Threat Levels</option>
+            <option value="scam_only">Scam / High Risk Only (≥60%)</option>
+          </select>
+          <input id="tableSearch" type="search" placeholder="Search captions, URLs, authors..." aria-label="Filter extracted results" />
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table id="resultsTable">
+          <thead>
+            <tr>
+              <th scope="col" style="width: 40px;">#</th>
+              <th scope="col" style="width: 100px;">Platform</th>
+              <th scope="col">Caption / Content</th>
+              <th scope="col" style="width: 180px;">AI Fraud Classification</th>
+              <th scope="col" style="width: 90px;">Risk Score</th>
+              <th scope="col" style="width: 80px;">Lang</th>
+              <th scope="col" style="width: 120px;">Author</th>
+              <th scope="col" style="width: 160px;">Post URL</th>
+              <th scope="col" style="width: 120px;">Collected</th>
+            </tr>
+          </thead>
+          <tbody id="resultsTableBody">
+            <tr class="empty-row">
+              <td colspan="9">No extracted results yet. Select platforms, enter keywords, and click <strong>Start Unified Extraction</strong>.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Multi-Format Export Row -->
+      <div class="export-row">
+        <div class="export-label">Export Unified Dataset:</div>
+        <div class="export-buttons">
+          <button id="exportCsvBtn" class="btn btn--export" type="button">
+            <span class="icon">📊</span> Export CSV (Excel UTF-8)
+          </button>
+          <button id="exportXlsxBtn" class="btn btn--export" type="button">
+            <span class="icon">📑</span> Export XLSX (Spreadsheet)
+          </button>
+          <button id="exportJsonBtn" class="btn btn--export btn--export-json" type="button">
+            <span class="icon">🤖</span> Export JSON (AI / ML Dataset)
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Debug Logs Drawer -->
+    <section class="panel logs-panel" id="logsPanel" hidden aria-labelledby="logsHeading">
+      <div class="panel-heading-row">
+        <h2 id="logsHeading" class="panel-heading">Live Background & AI Logs</h2>
+        <button id="clearLogsBtn" class="btn btn--ghost btn--small" type="button">Clear Logs</button>
+      </div>
+      <pre id="logsOutput" class="logs-output" tabindex="0"></pre>
+    </section>
+
+  </main>
+
+  <script src="dashboard.js"></script>
+</body>
+</html>

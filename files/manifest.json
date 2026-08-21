@@ -1,0 +1,55 @@
+{
+  "manifest_version": 3,
+  "name": "Social Media Research Extraction Toolkit",
+  "version": "0.1.0",
+  "description": "Collects publicly accessible social-media post/video URLs and metadata for research dataset-building, within platform access boundaries.",
+  "minimum_chrome_version": "116",
+
+  "action": {
+    "default_title": "Open Research Dashboard",
+    "default_icon": {
+      "16": "src/assets/icons/icon-16.png",
+      "32": "src/assets/icons/icon-32.png",
+      "48": "src/assets/icons/icon-48.png",
+      "128": "src/assets/icons/icon-128.png"
+    }
+  },
+
+  "icons": {
+    "16": "src/assets/icons/icon-16.png",
+    "32": "src/assets/icons/icon-32.png",
+    "48": "src/assets/icons/icon-48.png",
+    "128": "src/assets/icons/icon-128.png"
+  },
+
+  "side_panel": {
+    "default_path": "src/dashboard/dashboard.html"
+  },
+
+  "background": {
+    "service_worker": "src/background/service-worker.js",
+    "type": "module"
+  },
+
+  "permissions": [
+    "storage",
+    "scripting",
+    "activeTab",
+    "downloads",
+    "sidePanel",
+    "tabs"
+  ],
+
+  "host_permissions": [
+    "https://*.youtube.com/*",
+    "https://*.instagram.com/*",
+    "https://*.x.com/*",
+    "https://*.twitter.com/*",
+    "https://*.facebook.com/*",
+    "https://*.reddit.com/*"
+  ],
+
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self';"
+  }
+}
